@@ -20,9 +20,7 @@ extension Double {
 extension String {
     
     func trim() -> String {
-        
         return self.trimmingCharacters(in: .whitespacesAndNewlines)
-        
     }
     
     func execSubstring( _ startIndex:Int, _ endIndex:Int) -> String {
