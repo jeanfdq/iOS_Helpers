@@ -337,6 +337,16 @@ extension CLLocation {
     
 }
 
+extension UIImageView {
+    
+    func setNewHeightWidth(newW:CGFloat) -> CGSize {
+        
+        let nh = (frame.size.height * newW) / frame.size.width
+        
+        return CGSize(width: newW, height: nh)
+    }
+}
+
 extension UIImage {
     
     func ToBase64() -> String? {
