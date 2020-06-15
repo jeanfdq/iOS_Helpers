@@ -44,9 +44,6 @@ extension String {
         }else{
             return 0
         }
-        
-        
-        
     }
     
     func isEmailValid() -> Bool {
@@ -64,7 +61,43 @@ extension String {
         let imageData = Data(base64Encoded: self, options: Data.Base64DecodingOptions.ignoreUnknownCharacters)!
         return UIImage(data: imageData)!
     }
+
+    //Validaçao CPF e CNPJ
+    var isValidCPF: Bool {
+        let numbers = compactMap(\.wholeNumberValue)
+        guard numbers.count == 11 && Set(numbers).count != 1 else { return false }
+        return numbers.prefix(9).digitoCPF == numbers[9] &&
+               numbers.prefix(10).digitoCPF == numbers[10]
+    }
     
+    var isValidCNPJ: Bool {
+        let numbers = compactMap(\.wholeNumberValue)
+        guard numbers.count == 14 && Set(numbers).count != 1 else { return false }
+        return numbers.prefix(12).digitoCNPJ == numbers[12] &&
+               numbers.prefix(13).digitoCNPJ == numbers[13]
+    }
+    
+}
+
+extension Collection where Element == Int {
+    var digitoCPF: Int {
+        var number = count + 2
+        let digit = 11 - reduce(into: 0) {
+            number -= 1
+            $0 += $1 * number
+        } % 11
+        return digit > 9 ? 0 : digit
+    }
+    
+    var digitoCNPJ: Int {
+        var number = 1
+        let digit = 11 - reversed().reduce(into: 0) {
+            number += 1
+            $0 += $1 * number
+            if number == 9 { number = 1 }
+        } % 11
+        return digit > 9 ? 0 : digit
+    }
 }
 
 extension UIColor {
@@ -108,7 +141,7 @@ extension NSNotification {
 
 extension UIButton {
     
-    func setErrorAnime() {
+    func setShakeAnime() {
             
             let animation = CABasicAnimation(keyPath: "position")
             animation.fillMode = .forwards
@@ -120,7 +153,37 @@ extension UIButton {
             animation.toValue = CGPoint(x: self.center.x + 5, y: self.center.y)
             layer.add(animation, forKey: nil)
             
-        }
+    }
+
+    func setShakePulse(){
+        
+        let pulse = CASpringAnimation(keyPath: "transform.scale")
+        pulse.duration = 0.6
+        pulse.fromValue = 0.9
+        pulse.toValue = 1
+        pulse.autoreverses = true
+        pulse.repeatCount = 2
+        pulse.initialVelocity = 0.5
+        pulse.damping = 1
+        
+        layer.add(pulse, forKey: nil)
+        
+    }
+
+    func setShakeFlash(){
+        
+        let flash = CABasicAnimation(keyPath: "opacity")
+        flash.duration = 0.5
+        flash.fromValue = 1
+        flash.toValue = 0.1
+        flash.autoreverses = true
+        flash.repeatCount = 3
+        flash.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+        
+        layer.add(flash, forKey: nil)
+        
+    }
+
     
 }
 
