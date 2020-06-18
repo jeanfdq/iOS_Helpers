@@ -17,6 +17,25 @@ extension Double {
     
 }
 
+extension UIAlertAction {
+    
+    static func ok(_ handler: ((UIAlertAction) -> Void)? = nil) -> UIAlertAction {
+        let title = NSLocalizedString("OK", comment: "OK alert action title")
+        return UIAlertAction(title: title, style: .default, handler: handler)
+    }
+    
+    static func dismiss(_ handler: ((UIAlertAction) -> Void)? = nil) -> UIAlertAction {
+        let title = NSLocalizedString("Dismiss", comment: "Dismiss alert action title")
+        return UIAlertAction(title: title, style: .default, handler: handler)
+    }
+    
+    static func cancel(_ handler: ((UIAlertAction) -> Void)? = nil) -> UIAlertAction {
+        let title = NSLocalizedString("Cancel", comment: "Cancel alert action title")
+        return UIAlertAction(title: title, style: .cancel, handler: handler)
+    }
+    
+}
+
 extension String {
     
     func trim() -> String {
