@@ -7,6 +7,13 @@ extension UIViewController {
     var className: String {
         return NSStringFromClass(self.classForCoder).components(separatedBy: ".").last!
     }
+
+    func showAlertSingle(_ title:String, _ message:String){
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let btnOK = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+        alert.addAction(btnOK)
+        present(alert, animated: true, completion: nil)
+    }
 }
 
 extension UINavigationController {
