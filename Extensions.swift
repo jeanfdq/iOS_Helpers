@@ -2,6 +2,64 @@
 import UIKit
 import MapKit
 
+
+extension UIViewController {
+    var className: String {
+        return NSStringFromClass(self.classForCoder).components(separatedBy: ".").last!
+    }
+}
+
+extension UINavigationController {
+    
+    func pushViewController(_ viewController: UIViewController, animated: Bool = true, completion: @escaping () -> Void) {
+        CATransaction.begin()
+        CATransaction.setCompletionBlock(completion)
+        pushViewController(viewController, animated: animated)
+        CATransaction.commit()
+    }
+    
+    func popViewController(animated: Bool = true, completion: @escaping () -> Void) {
+        CATransaction.begin()
+        CATransaction.setCompletionBlock(completion)
+        popViewController(animated: animated)
+        CATransaction.commit()
+    }
+    
+    func popToRootViewController(animated: Bool = true, completion: @escaping () -> Void) {
+        CATransaction.begin()
+        CATransaction.setCompletionBlock(completion)
+        popToRootViewController(animated: animated)
+        CATransaction.commit()
+    }
+    
+    func change(backgroundColor: UIColor = #colorLiteral(red: 0.0431372549, green: 0.2274509804, blue: 0.4784313725, alpha: 1)) {
+        if #available(iOS 13.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = backgroundColor
+            appearance.shadowImage = UIImage()
+            appearance.shadowColor = UIColor.clear
+            appearance.backgroundImage = nil
+            appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+            navigationBar.backgroundColor = backgroundColor
+            navigationBar.standardAppearance = appearance
+            navigationBar.scrollEdgeAppearance = appearance
+            navigationBar.compactAppearance = appearance
+            navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+            
+            navigationBar.tintColor = UIColor.white
+        } else {
+            navigationBar.barTintColor = backgroundColor
+            navigationBar.shadowImage = UIImage()
+            navigationBar.tintColor = UIColor.white
+            navigationBar.setBackgroundImage(nil, for: .default)
+            navigationBar.backgroundColor = backgroundColor
+            navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        }
+        navigationBar.isTranslucent = false
+    }
+}
+
 extension Double {
     
     func round(to places: Int ) -> Double {
@@ -15,6 +73,27 @@ extension Double {
         
     }
     
+}
+
+extension Encodable {
+    func toData() -> Data? {
+        return try? JSONEncoder().encode(self)
+    }
+}
+
+extension Data {
+    
+     func toModel<T:Decodable>() -> T? {
+        return try? JSONDecoder().decode(T.self, from: self)
+    }
+    
+    func toJSON() -> [String:Any]? {
+        return try? JSONSerialization.jsonObject(with: self, options: .allowFragments) as? [String:Any]
+    }
+    
+    func toJSON() -> [String:Any]? {
+        return try? JSONSerialization.jsonObject(with: self, options: .allowFragments) as? [String:Any]
+    }
 }
 
 extension UIAlertAction {
@@ -136,7 +215,7 @@ extension UIColor {
             cString.remove(at: cString.startIndex)
         }
         
-        if hexa.count != 6 {
+        if cString.count != 6 {
             return .lightGray
         }
         
