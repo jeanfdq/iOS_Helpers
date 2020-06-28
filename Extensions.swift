@@ -455,6 +455,48 @@ extension UITextField {
 
 extension UIView {
     
+	// Corner separados-----------------------------------------
+	enum Corner:Int {
+	   case bottomRight = 0,
+	   topRight,
+	   bottomLeft,
+	   topLeft
+	}
+   
+	func roundCorners(corners: [Corner], amount: CGFloat = 5) {
+	   layer.cornerRadius = amount
+	   let maskedCorners: CACornerMask = CACornerMask(rawValue: createMask(corners: corners))
+	   layer.maskedCorners = maskedCorners
+	}
+	private func createMask(corners: [Corner]) -> UInt {
+	   return corners.reduce(0, { (a, b) -> UInt in
+		   return a + parseCorner(corner: b).rawValue
+	   })
+	}
+	private func parseCorner(corner: Corner) -> CACornerMask.Element {
+	   let corners: [CACornerMask.Element] = [.layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMinXMinYCorner]
+	   return corners[corner.rawValue]
+	}
+	//--------------------------------------------------------------
+	
+	func setCorner(radius:CGFloat) {
+        layer.cornerRadius = radius
+        layer.masksToBounds = true
+    }
+    
+    func setBorder(_ color:UIColor, _ width:CGFloat) {
+        layer.borderColor   = color.cgColor
+        layer.borderWidth   = width
+    }
+	
+	func setShadow(color:UIColor = .black ,radius: CGFloat, opacity:Float, offSet: CGSize = .init(width: 1, height: 1)){
+        layer.shadowColor   = color.cgColor
+        layer.shadowRadius  = radius
+        layer.shadowOpacity = opacity
+        layer.shadowOffset  = offSet
+        layer.masksToBounds = false
+    }
+	
     func setRightTriangle(){
         let heightWidth = frame.size.width //you can use triangleView.frame.size.height
         let path = CGMutablePath()
@@ -531,7 +573,7 @@ extension UIView {
         
     }
     
-    func applyViewConstraints(_ leading: NSLayoutXAxisAnchor?, _ top:NSLayoutYAxisAnchor?, _ trailing:NSLayoutXAxisAnchor?, _ bottom:NSLayoutYAxisAnchor?, size:CGSize = .zero, value:UIEdgeInsets = .zero ){
+	func applyViewConstraints( leading: NSLayoutXAxisAnchor? = nil,  top:NSLayoutYAxisAnchor? = nil,  trailing:NSLayoutXAxisAnchor? = nil,  bottom:NSLayoutYAxisAnchor? = nil, centerX:NSLayoutXAxisAnchor? = nil, centerY:NSLayoutYAxisAnchor? = nil, size:CGSize = .zero, value:UIEdgeInsets = .zero ){
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -549,6 +591,14 @@ extension UIView {
         
         if let bottom = bottom {
             bottomAnchor.constraint(equalTo: bottom, constant: value.bottom).isActive = true
+        }
+		
+		if let centerYSuperView = centerY {
+            centerYAnchor.constraint(equalTo: centerYSuperView).isActive = true
+        }
+        
+        if let centerXSuperView = centerX {
+            centerXAnchor.constraint(equalTo: centerXSuperView).isActive = true
         }
         
         if size.width != .zero {
