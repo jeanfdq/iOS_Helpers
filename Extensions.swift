@@ -3,6 +3,44 @@ import UIKit
 import MapKit
 
 
+extension UIFont {
+    
+    private static func customFont(name: String, size: CGFloat) -> UIFont {
+        let font = UIFont(name: name, size: size)
+        assert(font != nil, "Can't load font: \(name)")
+        return font ?? UIFont.systemFont(ofSize: size)
+    }
+    
+    static func regular(ofSize size: CGFloat) -> UIFont {
+        return customFont(name: name, size: size)
+    }
+    
+    static func medium(ofSize size: CGFloat) -> UIFont {
+        return customFont(name: name, size: size)
+    }
+    
+    static func bold(ofSize size: CGFloat) -> UIFont {
+        return customFont(name: name, size: size)
+    }
+ 
+}
+
+extension Notification.Name {
+    static let UNDidMakeReservation = Notification.Name("UNDidMakeReservation")
+    static let UNDidPaidReservation = Notification.Name("UNDidPaidReservation")
+    static let UNUserDidLogin = Notification.Name("UNUserDidLogin")
+    static let UNUserDidLogout = Notification.Name("UNUserDidLogout")
+    static let UNDidCanceledReservation = Notification.Name("UNDidCanceledReservation")
+    static let UNDidUpdateCurrentUser = Notification.Name("UNDidUpdateCurrentUser")
+    static let UNDidContractFinish = Notification.Name("UNDidContractFinish")
+    static let UNDidChangeProfileImage = Notification.Name("UNDidChangeProfileImage")
+    static let UNDidExtendReturn = Notification.Name("UNDidExtendReturn")
+    static let UNDidUnreadMessage = Notification.Name("UNDidUnreadMessage")
+    static let UNDidOpenContract = Notification.Name("UNDidOpenContract")
+    static let UNDidCloseContract = Notification.Name("UNDidCloseContract")
+    static let UNDidUpdateContract = Notification.Name("UNDidUpdateContract")
+}
+
 extension UIViewController {
     var className: String {
         return NSStringFromClass(self.classForCoder).components(separatedBy: ".").last!
@@ -67,6 +105,68 @@ extension UINavigationController {
     }
 }
 
+extension NumberFormatter {
+    static var currencyFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .currency
+        numberFormatter.locale = Locale(identifier: "pt-br")
+        return numberFormatter
+    }
+    
+    static var currencyFormatterWithouRounding: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.roundingMode = NumberFormatter.RoundingMode.down
+        numberFormatter.usesGroupingSeparator = true
+        numberFormatter.numberStyle = .currency
+        numberFormatter.locale = Locale(identifier: "pt-br")
+        return numberFormatter
+    }
+    
+    static var percentFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .percent
+        numberFormatter.locale = Locale(identifier: "pt-br")
+        return numberFormatter
+    }
+    
+    static var decimalNumberFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        return numberFormatter
+    }
+    
+    static var apiNumberFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.groupingSeparator = ""
+        numberFormatter.decimalSeparator = "."
+        numberFormatter.minimumFractionDigits = 2
+        numberFormatter.maximumFractionDigits = 2
+        return numberFormatter
+    }
+    
+    static let percentNumberFormatter: NumberFormatter = {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .percent
+        numberFormatter.maximumFractionDigits = 0
+        numberFormatter.minimumFractionDigits = 0
+        numberFormatter.minimumIntegerDigits = 1
+        return numberFormatter
+    }()
+  
+}
+
+extension UINavigationBar {
+    
+    func shouldRemoveShadow(_ value: Bool) -> Void {
+        if value {
+            self.setValue(true, forKey: "hidesShadow")
+        } else {
+            self.setValue(false, forKey: "hidesShadow")
+        }
+    }
+}
+
 extension Double {
     
     func round(to places: Int ) -> Double {
@@ -94,12 +194,8 @@ extension Data {
         return try? JSONDecoder().decode(T.self, from: self)
     }
     
-    func toJSON() -> [String:Any]? {
-        return try? JSONSerialization.jsonObject(with: self, options: .allowFragments) as? [String:Any]
-    }
-    
-    func toJSON() -> [String:Any]? {
-        return try? JSONSerialization.jsonObject(with: self, options: .allowFragments) as? [String:Any]
+    func toJSON() -> NSDictionary? {
+        return try? JSONSerialization.jsonObject(with: self, options: .mutableContainers) as? NSDictionary
     }
 }
 
@@ -585,6 +681,19 @@ extension UIImageView {
         
         return CGSize(width: newW, height: nh)
     }
+
+    func toImage(fromView view: UIView) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(view.bounds.size, false, 0.0)
+        defer { UIGraphicsEndImageContext() }
+        if let context = UIGraphicsGetCurrentContext() {
+            view.layer.render(in: context)
+            let image = UIGraphicsGetImageFromCurrentImageContext()
+            return image
+            
+        }
+        return nil
+    }
+    
 }
 
 extension UIImage {
@@ -668,4 +777,22 @@ extension Int {
         return String(describing: self)
     }
     
+}
+
+extension SFSafariViewController {
+    func clearCache(){
+        URLCache.shared.removeAllCachedResponses()
+        URLCache.shared.diskCapacity = 0
+        URLCache.shared.memoryCapacity = 0
+        
+        if let cookies = HTTPCookieStorage.shared.cookies {
+            for cookie in cookies {
+                let calendar = Calendar.current
+                if let oneYearAgo = calendar.date(byAdding: .year, value: 1, to: Date()){
+                    HTTPCookieStorage.shared.deleteCookie(cookie)
+                    HTTPCookieStorage.shared.removeCookies(since:oneYearAgo)
+                }
+            }
+        }
+    }
 }
