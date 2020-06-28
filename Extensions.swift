@@ -1,7 +1,15 @@
+//
+//  Extensions.swift
+//  Bradesco
+//
+//  Created by Jean Paull on 27/06/20.
+//  Copyright © 2020 Jean Paull. All rights reserved.
+//
+
 
 import UIKit
 import MapKit
-
+import SafariServices
 
 extension UIFont {
     
@@ -11,15 +19,15 @@ extension UIFont {
         return font ?? UIFont.systemFont(ofSize: size)
     }
     
-    static func regular(ofSize size: CGFloat) -> UIFont {
+    static func regular(name: String, ofSize size: CGFloat) -> UIFont {
         return customFont(name: name, size: size)
     }
     
-    static func medium(ofSize size: CGFloat) -> UIFont {
+    static func medium(name: String, ofSize size: CGFloat) -> UIFont {
         return customFont(name: name, size: size)
     }
     
-    static func bold(ofSize size: CGFloat) -> UIFont {
+    static func bold(name: String, ofSize size: CGFloat) -> UIFont {
         return customFont(name: name, size: size)
     }
  
@@ -258,10 +266,10 @@ extension String {
     }
 
     func isEmailValid2() -> Bool {
-        private let pattern = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let range = NSRange(location: 0, lenght: self.utf16.count)
+		let pattern = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let range = NSRange(location: 0, length: self.utf16.count)
         let regex = try? NSRegularExpression(pattern: pattern)
-        return regex.firstMatch(in: self, option: [], range: range) != nil
+		return regex?.firstMatch(in: self, options: [], range: range) != nil
     }
 
     func Base64ToImage() -> UIImage {
@@ -512,14 +520,14 @@ extension UIView {
         targetView!.layer.insertSublayer(shape, at: 0)
     }
     
-    func applyViewIntoSuperView(){
+	func applyViewIntoSuperView(value:UIEdgeInsets = .zero){
         
         translatesAutoresizingMaskIntoConstraints = false
         
-        leadingAnchor.constraint(equalTo: superview?.leadingAnchor ?? NSLayoutXAxisAnchor()).isActive = true
-        topAnchor.constraint(equalTo: superview?.topAnchor ?? NSLayoutYAxisAnchor()).isActive = true
-        trailingAnchor.constraint(equalTo: superview?.trailingAnchor ?? NSLayoutXAxisAnchor()).isActive = true
-        bottomAnchor.constraint(equalTo: superview?.bottomAnchor ?? NSLayoutYAxisAnchor()).isActive = true
+		leadingAnchor.constraint(equalTo: superview?.leadingAnchor ?? NSLayoutXAxisAnchor(), constant: value.left).isActive = true
+        topAnchor.constraint(equalTo: superview?.topAnchor ?? NSLayoutYAxisAnchor(), constant: value.top).isActive = true
+        trailingAnchor.constraint(equalTo: superview?.trailingAnchor ?? NSLayoutXAxisAnchor(), constant: value.right).isActive = true
+        bottomAnchor.constraint(equalTo: superview?.bottomAnchor ?? NSLayoutYAxisAnchor(), constant: value.bottom).isActive = true
         
     }
     
@@ -651,13 +659,13 @@ extension CLLocation {
     func getDistanceToString(_ locationDest:CLLocation) -> String {
         
         let distance = self.distance(from: locationDest) / 1000
-        var distanceDecimal = distance.roundDecimal(3)
+		var distanceDecimal = distance.round(to: 3)
         var unidademedida = "Km"
         if distanceDecimal < 1{
             distanceDecimal *= 1000
             unidademedida = "M"
         }else{
-            distanceDecimal = distanceDecimal.roundDecimal(0)
+			distanceDecimal = distanceDecimal.round(to: 0)
         }
         
         return "\(distanceDecimal) \(unidademedida)"
@@ -667,7 +675,7 @@ extension CLLocation {
     func getDistanceToMeter(_ locationDest:CLLocation) -> Double {
         
         let distance = self.distance(from: locationDest) / 1000
-        return Double(distance).roundDecimal(3)
+        return Double(distance).round(to: 3)
         
     }
     
