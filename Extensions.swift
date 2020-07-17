@@ -223,6 +223,12 @@ extension UIAlertAction {
         let title = NSLocalizedString("Cancel", comment: "Cancel alert action title")
         return UIAlertAction(title: title, style: .cancel, handler: handler)
     }
+
+    static func setTitleColor(color:UIColor){
+        
+        self.setValue(color, forKey: "titleTextColor")
+        
+    }
     
 }
 
@@ -255,6 +261,23 @@ extension String {
         }
     }
     
+    func maskCNPJ() -> String {
+        var characters = [Character](self)
+        if self.count >= 2 {
+            characters.insert(".", at: 2)
+        }
+        if self.count >= 6 {
+            characters.insert(".", at: 6)
+        }
+        if self.count >= 10 {
+            characters.insert("/", at: 10)
+        }
+        if self.count >= 15 {
+            characters.insert("-", at: 15)
+        }
+        return String(characters)
+    }
+
     func isEmailValid() -> Bool {
         
         let regexEmail = "(?:[a-z0-9!#$%\\&'*+/=?\\^_`{|}~-]+(?:\\.[a-z0-9!#$%\\&'*+/=?\\^_`{|}"+"~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\"+"x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-"+"z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5"+"]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-"+"9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21"+"-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
@@ -645,16 +668,6 @@ extension UIView {
     
 }
 
-extension UIAlertAction {
-    
-    func setTitleColor(color:UIColor){
-        
-        self.setValue(color, forKey: "titleTextColor")
-        
-    }
-    
-}
-
 extension Date {
     
     func timeAgoDisplay() -> String {
@@ -700,6 +713,31 @@ extension Date {
         datePattern.dateFormat = pattern
         return datePattern.string(from: self)
         
+    }
+    
+}
+
+extension CLLocationCoordinate2D {
+    
+    func validateGoogleMaps() -> URL? {
+        if let googleMaps = URL(string:"comgooglemaps://") {
+            if (UIApplication.shared.canOpenURL(googleMaps)) {
+                if let saveGoogleMapsUrl = URL(string:"comgooglemaps://?center=\(latitude),\(longitude)&zoom=14&views=traffic&q=\(latitude),\(longitude)") {
+                    return saveGoogleMapsUrl
+                }
+            }
+        }
+        return nil
+    }
+    
+    func validateWaze() -> URL? {
+        if let waze = URL(string:"waze://") {
+            if (UIApplication.shared.canOpenURL(waze)) {
+                let wazeUrl = URL(string: "waze://?ll=\(latitude),\(longitude)&navigate=yes")
+                return wazeUrl
+            }
+        }
+        return nil
     }
     
 }
