@@ -519,6 +519,13 @@ extension UIView {
         layer.shadowOffset  = offSet
         layer.masksToBounds = false
     }
+
+    func toImage() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { rendererContext in
+            layer.render(in: rendererContext.cgContext)
+        }
+    }
 	
     func setRightTriangle(){
         let heightWidth = frame.size.width //you can use triangleView.frame.size.height
