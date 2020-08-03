@@ -205,6 +205,25 @@ extension Data {
     func toJSON() -> NSDictionary? {
         return try? JSONSerialization.jsonObject(with: self, options: .mutableContainers) as? NSDictionary
     }
+
+    func nameOfWeek() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = NSLocale(localeIdentifier: "pt-BR") as Locale
+        dateFormatter.dateFormat = "EEEE"
+        let dayInWeek = dateFormatter.string(from: data)
+        return dayInWeek
+    }
+
+    func nextDayUtil() -> Date {
+        
+        var dateUtil = self
+        let calendar = Calendar(identifier: .gregorian)
+        while calendar.isDateInWeekend(self) {
+            dateUtil = calendar.date(byAdding: .day, value: 1, to: self)!
+        }
+        return dateUtil
+        
+    }
 }
 
 extension UIAlertAction {
