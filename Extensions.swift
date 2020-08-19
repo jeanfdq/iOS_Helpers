@@ -94,11 +94,12 @@ extension UINavigationController {
             appearance.shadowColor = UIColor.clear
             appearance.backgroundImage = nil
             appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+            appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
             navigationBar.backgroundColor = backgroundColor
             navigationBar.standardAppearance = appearance
             navigationBar.scrollEdgeAppearance = appearance
             navigationBar.compactAppearance = appearance
-            navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+
             
             navigationBar.tintColor = UIColor.white
         } else {
