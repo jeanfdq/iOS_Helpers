@@ -176,6 +176,19 @@ extension UINavigationBar {
     }
 }
 
+extension UINavigationItem {
+    func setBackButtonTitle(title: String) {
+        let backItem = UIBarButtonItem()
+        backItem.title = title
+        backBarButtonItem = backItem
+    }
+    
+    override open func awakeFromNib() {
+        super.awakeFromNib()
+        self.backBarButtonItem = UIBarButtonItem()
+    }
+}
+
 extension Double {
     
     func round(to places: Int ) -> Double {
@@ -205,25 +218,6 @@ extension Data {
     
     func toJSON() -> NSDictionary? {
         return try? JSONSerialization.jsonObject(with: self, options: .mutableContainers) as? NSDictionary
-    }
-
-    func nameOfWeek() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = NSLocale(localeIdentifier: "pt-BR") as Locale
-        dateFormatter.dateFormat = "EEEE"
-        let dayInWeek = dateFormatter.string(from: data)
-        return dayInWeek
-    }
-
-    func nextDayUtil() -> Date {
-        
-        var dateUtil = self
-        let calendar = Calendar(identifier: .gregorian)
-        while calendar.isDateInWeekend(self) {
-            dateUtil = calendar.date(byAdding: .day, value: 1, to: self)!
-        }
-        return dateUtil
-        
     }
 }
 
@@ -296,6 +290,101 @@ extension String {
             characters.insert("-", at: 15)
         }
         return String(characters)
+    }
+
+    var isValidEmail: Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        
+        let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        
+        return emailTest.evaluate(with: self)
+    }
+
+    var isValidPhoneNumber: Bool {
+        let phoneNumberKit = PhoneNumberKit()
+        let phoneNumber = try? phoneNumberKit.parse("+55\(self)")
+        return phoneNumber != nil
+    }
+
+    var areaCode: Int? {
+        let validPhoneStr = self.removePhoneCharacters
+        guard (10...11).contains(validPhoneStr.count) else { return nil }
+        let areaCodeEndingIndex = validPhoneStr.index(validPhoneStr.startIndex, offsetBy: 2)
+        return Int(validPhoneStr[..<areaCodeEndingIndex])!
+    }
+    
+    var phoneNumber: Int? {
+        let validPhoneStr = self.removePhoneCharacters
+        guard (10...11).contains(validPhoneStr.count) else { return nil }
+        let areaCodeEndingIndex = validPhoneStr.index(validPhoneStr.startIndex, offsetBy: 2)
+        return Int(validPhoneStr[areaCodeEndingIndex..<validPhoneStr.endIndex])!
+    }
+    
+    var removeSpecialChars: String {
+        let removeAccents = self.folding(options: .diacriticInsensitive, locale: .current)
+        let badchar = CharacterSet(charactersIn: "\"[]()$,")
+        return removeAccents.components(separatedBy: badchar).joined()
+    }
+
+    var eventParameter: String {
+        let normalized = removeSpecialChars
+        return normalized.replacingOccurrences(of: " ", with: "").lowercased()
+    }
+    
+    var removePhoneCharacters: String {
+        var returnValue = self.replacingOccurrences(of: " ", with: "")
+        returnValue = returnValue.replacingOccurrences(of: "(", with: "")
+        returnValue = returnValue.replacingOccurrences(of: ")", with: "")
+        returnValue = returnValue.replacingOccurrences(of: "-", with: "")
+        return returnValue
+    }
+    
+    var removeZipcodeCharacters: String {
+        let returnValue = self.replacingOccurrences(of: "-", with: "")
+        return returnValue
+    }
+    
+    var removeDocumentNumberCharacters: String {
+        var returnValue = self.replacingOccurrences(of: ".", with: "")
+        returnValue = returnValue.replacingOccurrences(of: "-", with: "")
+        
+        return returnValue
+    }
+    
+    func capitalizingFirstLetter() -> String {
+        return prefix(1).capitalized + dropFirst()
+    }
+    
+    func formattedResidencePhoneNumber() -> String {
+        guard let mask = try? Mask(format: "([00]) [00000]-[0000]") else { return self }
+        let toText = CaretString(string: self, caretPosition: self.endIndex, caretGravity: .forward)
+        return mask.apply(toText: toText).formattedText.string
+    }
+    
+    func formattedMobilePhoneMaskNumber() -> String {
+        let mobilePhoneFormatted = self.formattedResidencePhoneNumber()
+        let mobilePhoneFirst = String(mobilePhoneFormatted.prefix(7))
+        let mobilePhoneLast  = String(mobilePhoneFormatted.suffix(2))
+        return "\(mobilePhoneFirst)*****\(mobilePhoneLast)"
+    }
+    
+    func formattedEmailMaskNumber() -> String {
+        let components = self.lowercased().components(separatedBy: "@")
+        return hideMidChars(components.first!) + "@" + components.last!
+    }
+    
+    private func hideMidChars(_ value: String) -> String {
+        return String(value.enumerated().map { index, char in
+            return [0, 1, value.count - 1, value.count - 2].contains(index) ? char : "*"
+        })
+    }
+    
+    var nsRange : NSRange {
+        return NSRange(self.startIndex..., in: self)
+    }
+    
+    func lowerCapitalize() -> String {
+        return self.lowercased().capitalizingFirstLetter()
     }
 
     func isEmailValid() -> Bool {
@@ -443,7 +532,34 @@ extension UIButton {
         
     }
 
-    
+    func loading(_ show: Bool, activityIndicatorViewStyle: UIActivityIndicatorView.Style = .white) {
+        let tag = 808404
+        isEnabled = !show
+        if show {
+            self.alpha = 0.5
+            let indicator = UIActivityIndicatorView(style: activityIndicatorViewStyle)
+            let buttonHeight = self.bounds.size.height
+            let buttonWidth = self.bounds.size.width
+            indicator.center = CGPoint(x: buttonWidth - 30, y: buttonHeight/2)
+            indicator.tag = tag
+            self.addSubview(indicator)
+            indicator.startAnimating()
+        } else {
+            self.alpha = 1.0
+            if let indicator = self.viewWithTag(tag) as? UIActivityIndicatorView {
+                indicator.stopAnimating()
+                indicator.removeFromSuperview()
+            }
+        }
+    }
+
+    func rotate() {
+        let rotation : CABasicAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotation.toValue = NSNumber(value: Double.pi)
+        rotation.duration = 0.5
+        rotation.isCumulative = true
+        self.layer.add(rotation, forKey: "rotationAnimation")
+    }
 }
 
 extension UILabel {
@@ -513,6 +629,17 @@ extension UITextField {
         rightView = paddingView
         rightViewMode = .always
     }
+
+    func changeColorBorder(isOn: Bool) {
+        if isOn {
+            self.layer.cornerRadius = 4
+            self.layer.borderWidth = 1
+            self.layer.borderColor = UIColor.red.cgColor
+            self.layer.masksToBounds = true
+        }else{
+            self.layer.borderWidth = 0
+        }
+    }
 }
 
 extension UIView {
@@ -525,11 +652,26 @@ extension UIView {
 	   topLeft
 	}
    
-	func roundCorners(corners: [Corner], amount: CGFloat = 5) {
-	   layer.cornerRadius = amount
-	   let maskedCorners: CACornerMask = CACornerMask(rawValue: createMask(corners: corners))
-	   layer.maskedCorners = maskedCorners
-	}
+	func roundCorners(_ corners: UIRectCorner, radius: CGFloat) {
+        var cornerMask = UIRectCorner()
+        if(corners.contains(.topLeft)){
+            cornerMask.insert(.topLeft)
+        }
+        if(corners.contains(.topRight)){
+            cornerMask.insert(.topRight)
+        }
+        if(corners.contains(.bottomLeft)){
+            cornerMask.insert(.bottomLeft)
+        }
+        if(corners.contains(.bottomRight)){
+            cornerMask.insert(.bottomRight)
+        }
+        let path = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: cornerMask, cornerRadii: CGSize(width: radius, height: radius))
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        self.layer.mask = mask
+    }
+
 	private func createMask(corners: [Corner]) -> UInt {
 	   return corners.reduce(0, { (a, b) -> UInt in
 		   return a + parseCorner(corner: b).rawValue
@@ -760,6 +902,25 @@ extension Date {
         return datePattern.string(from: self)
         
     }
+
+    func nameOfWeek() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = NSLocale(localeIdentifier: "pt-BR") as Locale
+        dateFormatter.dateFormat = "EEEE"
+        let dayInWeek = dateFormatter.string(from: self)
+        return dayInWeek
+    }
+    
+    func nextDayUtil() -> Date {
+        
+        var dateUtil = self
+        let calendar = Calendar(identifier: .gregorian)
+        while calendar.isDateInWeekend(self) {
+            dateUtil = calendar.date(byAdding: .day, value: 1, to: self)!
+        }
+        return dateUtil
+        
+    }
     
 }
 
@@ -834,6 +995,25 @@ extension UIImageView {
             
         }
         return nil
+    }
+
+    func setImageAvatar(withURL url: URL?,  borderColor: UIColor, borderWidth: Int = 2) {
+        self.layer.cornerRadius = (self.frame.size.width) / 2
+        self.clipsToBounds = true
+        self.layer.borderWidth = CGFloat(borderWidth)
+        self.layer.borderColor = borderColor.cgColor
+        
+        guard let url = url else { return }
+        self.af_setImage(withURL: url)
+    }
+    
+    func rotate() {
+        let rotation : CABasicAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotation.toValue = NSNumber(value: Double.pi * 2)
+        rotation.duration = 2
+        rotation.isCumulative = true
+        rotation.repeatCount = Float.greatestFiniteMagnitude
+        self.layer.add(rotation, forKey: "rotationAnimation")
     }
     
 }
