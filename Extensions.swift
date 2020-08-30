@@ -60,6 +60,10 @@ extension UIViewController {
         alert.addAction(btnOK)
         present(alert, animated: true, completion: nil)
     }
+
+    func dismissToRoot(){
+        UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true)
+    }
 }
 
 extension UINavigationController {
@@ -212,6 +216,8 @@ extension Encodable {
 
 extension Data {
     
+    var toImage: UIImage? { UIImage(data: self) }
+
      func toModel<T:Decodable>() -> T? {
         return try? JSONDecoder().decode(T.self, from: self)
     }
@@ -1020,6 +1026,9 @@ extension UIImageView {
 
 extension UIImage {
     
+    var jpegData: Data? { jpegData(compressionQuality: 1) }  // QUALITY min = 0 / max = 1
+    var pngData: Data? { pngData() } 
+
     func ToBase64() -> String? {
         
         guard let imageData = self.pngData() else {return nil}
