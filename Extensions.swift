@@ -713,6 +713,16 @@ extension UIView {
             layer.render(in: rendererContext.cgContext)
         }
     }
+
+    func addSubViews(_ views: UIView...){
+        for view in views {
+            addSubview(view)
+        }
+    }
+    
+    func dismissKeyboard(){
+        endEditing(true)
+    }
 	
     func setRightTriangle(){
         let heightWidth = frame.size.width //you can use triangleView.frame.size.height
