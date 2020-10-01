@@ -910,6 +910,14 @@ extension Date {
         return "\(quotient) \(unit)\(quotient == 1 ? "" : "s") ago"
         
     }
+
+    func localDate() -> Date {
+        let nowUTC = Date()
+        let timeZoneOffset = Double(TimeZone.current.secondsFromGMT(for: nowUTC))
+        guard let localDate = Calendar.current.date(byAdding: .second, value: Int(timeZoneOffset), to: nowUTC) else {return Date()}
+        
+        return localDate
+    }
     
     func getDateToString(_ pattern:String) -> String {
         
@@ -1134,6 +1142,14 @@ extension SFSafariViewController {
                     HTTPCookieStorage.shared.removeCookies(since:oneYearAgo)
                 }
             }
+        }
+    }
+}
+
+extension URLRequest {
+    public var description: String{
+        get{
+            return "HEADER: \n \(String(describing: allHTTPHeaderFields)) \n BODY: \n \(String(decoding: httpBody ?? Data(), as: UTF8.self))"
         }
     }
 }
