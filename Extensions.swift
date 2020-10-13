@@ -714,6 +714,16 @@ extension UIView {
         }
     }
 
+    func setBackgroudGradient(topColor: UIColor, bottomColor:UIColor){
+        
+        let gradient = CAGradientLayer()
+        gradient.colors = [topColor.cgColor, bottomColor.cgColor]
+        gradient.locations = [0,1]
+        gradient.frame = frame
+        layer.insertSublayer(gradient, at: 0)
+        
+    }
+
     func addSubViews(_ views: UIView...){
         for view in views {
             addSubview(view)
@@ -869,7 +879,24 @@ extension UIView {
             heightAnchor.constraint(equalToConstant: size.height).isActive = true
         }
     }
+
+    func  addTapGesture(action : @escaping ()->Void ){
+        let tap = MyTapGestureRecognizer(target: self , action: #selector(self.handleTap(_:)))
+        tap.action = action
+        tap.numberOfTapsRequired = 1
+        
+        self.addGestureRecognizer(tap)
+        self.isUserInteractionEnabled = true
+        
+    }
+    @objc func handleTap(_ sender: MyTapGestureRecognizer) {
+        sender.action!()
+    }
     
+}
+
+class MyTapGestureRecognizer: UITapGestureRecognizer {
+    var action : (()->Void)? = nil
 }
 
 extension Date {
