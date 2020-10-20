@@ -89,7 +89,7 @@ extension UINavigationController {
         CATransaction.commit()
     }
     
-    func change(backgroundColor: UIColor = #colorLiteral(red: 0.0431372549, green: 0.2274509804, blue: 0.4784313725, alpha: 1)) {
+    func change(backgroundColor: UIColor = .white) {
         if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
@@ -253,6 +253,10 @@ extension UIAlertAction {
 }
 
 extension String {
+    
+    func replace(string:String, replacement:String) ->String {
+        return self.replacingOccurrences(of: string, with: replacement, options: .literal)
+    }
     
     func trim() -> String {
         return self.trimmingCharacters(in: .whitespacesAndNewlines)
