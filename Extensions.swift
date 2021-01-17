@@ -10,6 +10,7 @@
 import UIKit
 import MapKit
 import SafariServices
+import Loaf
 
 extension UIFont {
     
@@ -63,6 +64,14 @@ extension UIViewController {
 
     func dismissToRoot(){
         UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true)
+    }
+
+    func showLoaf(message: String, state: Loaf.State, duration:Double = 1.0 ){
+        Loaf(message, state: state, location: .top, presentingDirection: .vertical, dismissingDirection: .vertical, sender: self).show(.custom(duration))
+    }
+    
+    func showLoafError(message: String ){
+        Loaf(message, state: .error, location: .top, presentingDirection: .vertical, dismissingDirection: .vertical, sender: self).show()
     }
 }
 
@@ -956,6 +965,13 @@ extension Date {
         datePattern.dateFormat = pattern
         return datePattern.string(from: self)
         
+    }
+    
+    func toRelativeString() -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        let today = Date()
+        return formatter.localizedString(for: self, relativeTo: today)
     }
 
     func nameOfWeek() -> String {
