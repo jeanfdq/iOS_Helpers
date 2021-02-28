@@ -334,6 +334,16 @@ extension String {
         return String(characters)
     }
 
+    var isURLValid: Bool {
+
+        let siteRegex = "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$"
+        
+        let siteText = NSPredicate(format: "SELF MATCHES[c] %@", siteRegex)
+        
+        return siteText.evaluate(with: self.trim())
+
+    }
+
     var isValidEmail: Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         
