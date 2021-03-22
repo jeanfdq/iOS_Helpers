@@ -78,6 +78,32 @@ extension UIViewController {
         return NSStringFromClass(self.classForCoder).components(separatedBy: ".").last!
     }
 
+    func setupNavigationBar(isHidden: Bool? = false, isTranslucent: Bool? = false, title: String? = "", backButtonTitle: String? = "", backgroungColor: UIColor? = UIColor.clear, backButtonImage: UIImage? = UIImage(named: "icon-back"), animated: Bool) {
+        navigationController?.navigationItem.title = title
+        
+        navigationController?.setNavigationBarHidden(isHidden!, animated: animated)//navigationBar.isHidden = isHidden!
+        navigationController?.view.backgroundColor = backgroungColor
+        navigationController?.navigationBar.isTranslucent = isTranslucent!
+        
+        if isTranslucent! {
+            self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+            self.navigationController?.navigationBar.shadowImage = UIImage()
+            self.navigationController?.view.backgroundColor = backgroungColor
+        }
+        
+        let backButtonImageView = UIImageView(image: backButtonImage)
+        
+        let templateImage = backButtonImageView.image?.withRenderingMode(.alwaysTemplate)
+        backButtonImageView.image = templateImage
+        backButtonImageView.tintColor = CoreColor.brandHeavier.asCoreColors
+        
+        self.navigationController?.navigationBar.backIndicatorImage = backButtonImageView.image
+        self.navigationController?.navigationBar.backIndicatorTransitionMaskImage = backButtonImageView.image
+        self.navigationController?.navigationBar.backItem?.title = backButtonTitle
+        
+        navigationController?.navigationBar.topItem?.backBarButtonItem = UIBarButtonItem(title: backButtonTitle, style: .plain, target: nil, action: nil)
+    }
+
     func showAlertSingle(_ title:String, _ message:String){
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let btnOK = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
@@ -95,6 +121,15 @@ extension UIViewController {
     
     func showLoafError(message: String ){
         Loaf(message, state: .error, location: .top, presentingDirection: .vertical, dismissingDirection: .vertical, sender: self).show()
+    }
+
+    func insertBlurBackground(style: UIBlurEffect.Style) {
+        
+        let blurEffect = UIBlurEffect(style: style)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(blurEffectView)
     }
 }
 
@@ -788,71 +823,6 @@ extension UIView {
     
     func dismissKeyboard(){
         endEditing(true)
-    }
-	
-    func setRightTriangle(){
-        let heightWidth = frame.size.width //you can use triangleView.frame.size.height
-        let path = CGMutablePath()
-
-        path.move(to: CGPoint(x: heightWidth/2, y: 0))
-        path.addLine(to: CGPoint(x:heightWidth, y: heightWidth/2))
-        path.addLine(to: CGPoint(x:heightWidth/2, y:heightWidth))
-        path.addLine(to: CGPoint(x:heightWidth/2, y:0))
-
-        let shape = CAShapeLayer()
-        shape.path = path
-        shape.fillColor = UIColor.blue.cgColor
-
-        
-        layer.insertSublayer(shape, at: 0)
-    }
-
-    func setLeftTriangle(targetView:UIView?){
-        let heightWidth = targetView!.frame.size.width
-        let path = CGMutablePath()
-
-        path.move(to: CGPoint(x: heightWidth/2, y: 0))
-        path.addLine(to: CGPoint(x:0, y: heightWidth/2))
-        path.addLine(to: CGPoint(x:heightWidth/2, y:heightWidth))
-        path.addLine(to: CGPoint(x:heightWidth/2, y:0))
-
-        let shape = CAShapeLayer()
-        shape.path = path
-        shape.fillColor = UIColor.blue.cgColor
-
-        targetView!.layer.insertSublayer(shape, at: 0)
-    }
-
-    func setUpTriangle(targetView:UIView?){
-     let heightWidth = targetView!.frame.size.width
-        let path = CGMutablePath()
-
-        path.move(to: CGPoint(x: 0, y: heightWidth))
-        path.addLine(to: CGPoint(x:heightWidth/2, y: heightWidth/2))
-        path.addLine(to: CGPoint(x:heightWidth, y:heightWidth))
-        path.addLine(to: CGPoint(x:0, y:heightWidth))
-
-        let shape = CAShapeLayer()
-        shape.path = path
-        shape.fillColor = UIColor.blue.cgColor
-
-        targetView!.layer.insertSublayer(shape, at: 0)
-    }
-
-    func setDownTriangle(targetView:UIView?){
-        let heightWidth = targetView!.frame.size.width
-        let path = CGMutablePath()
-
-        path.move(to: CGPoint(x: 0, y: 0))
-        path.addLine(to: CGPoint(x:heightWidth/2, y: heightWidth/2))
-        path.addLine(to: CGPoint(x:heightWidth, y:0))
-        path.addLine(to: CGPoint(x:0, y:0))
-
-        let shape = CAShapeLayer()
-        shape.path = path
-        shape.fillColor = UIColor.blue.cgColor
-
-        targetView!.layer.insertSublayer(shape, at: 0)
     }
     
 	func applyViewIntoSuperView(value:UIEdgeInsets = .zero){
