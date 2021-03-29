@@ -352,6 +352,19 @@ extension String {
         }
     }
     
+    // exemple:  string.applyPatternOnNumbers(pattern: "(##) # ####-####", replacmentCharacter: "#")
+    func applyPatternOnNumbers(pattern: String, replacmentCharacter: Character) -> String {
+        var pureNumber = self.replacingOccurrences( of: "[^0-9]", with: "", options: .regularExpression)
+        for index in 0 ..< pattern.count {
+            guard index < pureNumber.count else { return pureNumber }
+            let stringIndex = String.Index(utf16Offset: index, in: pattern)
+            let patternCharacter = pattern[stringIndex]
+            guard patternCharacter != replacmentCharacter else { continue }
+            pureNumber.insert(patternCharacter, at: stringIndex)
+        }
+        return pureNumber
+    }
+
     func maskCNPJ() -> String {
         var characters = [Character](self)
         if self.count >= 2 {
@@ -536,6 +549,42 @@ extension Collection where Element == Int {
 }
 
 extension UIColor {
+    
+    convenience init(hexString: String, alpha: CGFloat = 1.0) {
+        let hexString: String = hexString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let scanner = Scanner(string: hexString)
+
+        if (hexString.hasPrefix("#")) {
+            scanner.scanLocation = 1
+        }
+
+        var color: UInt32 = 0
+        scanner.scanHexInt32(&color)
+
+        let mask = 0x000000FF
+        let r = Int(color >> 16) & mask
+        let g = Int(color >> 8) & mask
+        let b = Int(color) & mask
+
+        let red   = CGFloat(r) / 255.0
+        let green = CGFloat(g) / 255.0
+        let blue  = CGFloat(b) / 255.0
+
+        self.init(red:red, green:green, blue:blue, alpha:alpha)
+    }
+
+    func toHexString() -> String {
+        var r:CGFloat = 0
+        var g:CGFloat = 0
+        var b:CGFloat = 0
+        var a:CGFloat = 0
+
+        getRed(&r, green: &g, blue: &b, alpha: &a)
+
+        let rgb:Int = (Int)(r*255)<<16 | (Int)(g*255)<<8 | (Int)(b*255)<<0
+
+        return String(format:"#%06x", rgb)
+    }
     
     static func FromHexaToColor(_ hexa:String) -> UIColor {
         
@@ -849,11 +898,11 @@ extension UIView {
         }
         
         if let trailing = trailing {
-            trailingAnchor.constraint(equalTo: trailing, constant: value.right).isActive = true
+            trailingAnchor.constraint(equalTo: trailing, constant: value.right * (-1)).isActive = true
         }
         
         if let bottom = bottom {
-            bottomAnchor.constraint(equalTo: bottom, constant: value.bottom).isActive = true
+            bottomAnchor.constraint(equalTo: bottom, constant: value.bottom * (-1)).isActive = true
         }
 		
 		if let centerYSuperView = centerY {
@@ -1212,4 +1261,24 @@ extension URLRequest {
             return "HEADER: \n \(String(describing: allHTTPHeaderFields)) \n BODY: \n \(String(decoding: httpBody ?? Data(), as: UTF8.self))"
         }
     }
+}
+
+extension UIAlertController {
+    
+    var messageTitleTextColor: UIColor? {
+        set{
+            self.setValue(NSAttributedString(string: self.title ?? "", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 25, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor : UIColor.red]), forKey: "attributedTitle")
+        } get {
+            return self.value(forKey: "attributedTitle") as? UIColor
+        }
+    }
+    
+    var messageTextColor: UIColor? {
+        set{
+            self.setValue(NSAttributedString(string: self.message ?? "", attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 25, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor : UIColor.red]), forKey: "attributedMessage")
+        } get {
+            return self.value(forKey: "attributedMessage") as? UIColor
+        }
+    }
+    
 }
