@@ -74,6 +74,7 @@ extension Notification.Name {
 }
 
 extension UIViewController {
+
     var className: String {
         return NSStringFromClass(self.classForCoder).components(separatedBy: ".").last!
     }
@@ -131,6 +132,17 @@ extension UIViewController {
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(blurEffectView)
     }
+
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
 }
 
 extension UINavigationController {
