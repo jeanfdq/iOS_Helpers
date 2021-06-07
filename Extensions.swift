@@ -363,6 +363,10 @@ extension String {
             return 0
         }
     }
+
+    mutating func capitalizedFirstLetter() {
+        self.replaceSubrange(self.startIndex...self.startIndex, with: String(self[self.startIndex]).capitalized)
+    }
     
     // exemple:  string.applyPatternOnNumbers(pattern: "(##) # ####-####", replacmentCharacter: "#")
     func applyPatternOnNumbers(pattern: String, replacmentCharacter: Character) -> String {
