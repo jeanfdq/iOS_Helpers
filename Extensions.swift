@@ -168,27 +168,32 @@ extension UINavigationController {
         CATransaction.commit()
     }
     
-    func change(backgroundColor: UIColor = .white) {
+    func change(backgroundColor: UIColor = .white, shadowColor: UIColor = .clear ) {
         if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = backgroundColor
             appearance.shadowImage = UIImage()
-            appearance.shadowColor = UIColor.clear
+            appearance.shadowColor = .clear
             appearance.backgroundImage = nil
             appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
             appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
             navigationBar.backgroundColor = backgroundColor
+            
+            navigationBar.layer.shadowColor = shadowColor.cgColor
+            navigationBar.layer.shadowOffset = .init(width: 1, height: 0.3)
+            navigationBar.layer.shadowRadius = 1.0
+            navigationBar.layer.shadowOpacity = 0.5
+            
             navigationBar.standardAppearance = appearance
             navigationBar.scrollEdgeAppearance = appearance
             navigationBar.compactAppearance = appearance
 
-            
             navigationBar.tintColor = UIColor.white
         } else {
             navigationBar.barTintColor = backgroundColor
             navigationBar.shadowImage = UIImage()
-            navigationBar.tintColor = UIColor.white
+            navigationBar.tintColor = shadowColor
             navigationBar.setBackgroundImage(nil, for: .default)
             navigationBar.backgroundColor = backgroundColor
             navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
